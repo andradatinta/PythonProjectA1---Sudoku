@@ -1,28 +1,10 @@
 import random
 import pygame
+import copy
 
 width = 750
 background = (52, 58, 64)
 number_color = (248, 249, 250)
-grid_test = [[7, 8, 0, 4, 0, 0, 1, 2, 0],
-[6, 0, 0, 0, 7, 5, 0, 0, 9],
-[0, 0, 0, 6, 0, 1, 0, 7, 8],
-[0, 0, 7, 0, 4, 0, 2, 6, 0],
-[0, 0, 1, 0, 5, 0, 9, 3, 0],
-[9, 0, 4, 0, 6, 0, 0, 0, 5],
-[0, 7, 0, 3, 0, 0, 0, 1, 2],
-[1, 2, 0, 0, 0, 7, 4, 0, 0],
-[0, 4, 9, 2, 0, 6, 0, 0, 7]]
-grid_test_copy = [[7, 8, 0, 4, 0, 0, 1, 2, 0],
-[6, 0, 0, 0, 7, 5, 0, 0, 9],
-[0, 0, 0, 6, 0, 1, 0, 7, 8],
-[0, 0, 7, 0, 4, 0, 2, 6, 0],
-[0, 0, 1, 0, 5, 0, 9, 3, 0],
-[9, 0, 4, 0, 6, 0, 0, 0, 5],
-[0, 7, 0, 3, 0, 0, 0, 1, 2],
-[1, 2, 0, 0, 0, 7, 4, 0, 0],
-[0, 4, 9, 2, 0, 6, 0, 0, 7]]
-
 def choose_sudoku_game():
     grid = [
         [
@@ -48,23 +30,64 @@ def choose_sudoku_game():
             [8, 9, 0, 7, 1, 0, 5, 0, 3]
         ]
     ]
-    # grid_copy = grid.copy()
-    # print(random.choice(grid))
+    choice = random.choice(grid)
+    choice_copy = copy.deepcopy(choice)
 
-    return random.choice(grid)
+    return [choice, choice_copy]
 
+def is_cell_empty(num):
+    if num == 0:
+        return True
+    return False
+
+def is_number_valid(position, num, grid):
+    # check on row
+    for i in range(0, len(grid[0])):
+        if grid[position[0]][i] == num:
+            return False
+    # check on column
+    for i in range(0, len(grid[0])):
+        if grid [i][position[1]] == num:
+            return False
+    # check on box
+    x = position[0] // 3*3
+    y = position[1] // 3*3
+
+    for i in range(0, 3):
+        for j in range(0, 3):
+            if grid[x + i][y + j] == num:
+                return False
+    return True
+
+solved = 0
+def sudoku_solver(grid):
+    for i in range(0, len(grid[0])):
+        for j in range(0, len(grid[0])):
+            print(f"na index: {grid[i][j]}")
+            if is_cell_empty(grid[i][j]):
+                for k in range(1, 10):
+                    if is_number_valid((i, j), k, grid):
+                        grid[i][j] = k
+                        sudoku_solver(grid)
+                        global solved
+                        if solved == 1:
+                            solution = copy.deepcopy(grid)
+                            return solution
+                        grid[i][j] = 0
+                return 0
+    solved = 1
 def insert_user_number(game_window, cell_coordinates, chosen_grid, chosen_grid_copy):
-    grid_font = pygame.font.SysFont('Comic Sans MS', 35)
+    grid_font = pygame.font.SysFont('comicsansms', 35)
     x, y = cell_coordinates[1], cell_coordinates[0] # flipping the values
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
             if event.type == pygame.KEYDOWN:
-                if chosen_grid_copy[x-3][y-3] != 0: # daca e ocupata casuta
+                if chosen_grid_copy[x-3][y-3] != 0: # if the cell is occupied
                     return
                 if event.key == 48: #   check with 0 if the value is correct or not
-                    chosen_grid[x-3][y-3] = 0  # sau event.key - 48
+                    chosen_grid[x-3][y-3] = 0
                     pygame.draw.rect(game_window, background,
                                      (cell_coordinates[0]*50 + 5, cell_coordinates[1]*50 + 5, 50 - 5, 50 - 5))
                     pygame.display.update()
@@ -75,14 +98,16 @@ def insert_user_number(game_window, cell_coordinates, chosen_grid, chosen_grid_c
                     game_window.blit(value, (cell_coordinates[0]*50 + 15, cell_coordinates[1]*50))
                     chosen_grid[x-3][y-3] = event.key - 48
                     pygame.display.update()
-                return
+                return chosen_grid
+
             return
 
-def initialize_game_window(chosen_grid, chosen_grid_copy):
+def initialize_game_window(chosen_grid, chosen_grid_copy, test_copy):
+    global to_check
     pygame.init()
     game_window = pygame.display.set_mode((width, width))
     game_window.fill(background)
-    grid_font = pygame.font.SysFont('Comic Sans MS', 35)
+    grid_font = pygame.font.SysFont('comicsansms', 35)
     pygame.display.set_caption("FIISudoku")
 
     for line_number in range(0, 10):
@@ -101,7 +126,6 @@ def initialize_game_window(chosen_grid, chosen_grid_copy):
         for j in range(0, len(chosen_grid[0])):
             if 0 < chosen_grid[i][j] < 10:
                 value = grid_font.render(str(chosen_grid[i][j]), True, number_color)
-                # game_window.blit(value, ((j + 1) * 50 + 100, (i + 1) * 50 + 100))
                 game_window.blit(value, ((j + 1) * 50 + 115, (i + 1) * 50 + 100))
     pygame.display.update()
 
@@ -110,15 +134,24 @@ def initialize_game_window(chosen_grid, chosen_grid_copy):
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 cell_coordinates = pygame.mouse.get_pos()
                 print(cell_coordinates)
-                insert_user_number(game_window, (cell_coordinates[0]//50, cell_coordinates[1]//50), chosen_grid, chosen_grid_copy) # get index //50
+                to_check = insert_user_number(game_window, (cell_coordinates[0]//50, cell_coordinates[1]//50),
+                                              chosen_grid, chosen_grid_copy) # get index //50
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_c:
+                    if to_check:
+                        if to_check == test_copy:
+                            print("Corect")
+                        else:
+                            print("Incorect")
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return
 
 
 if __name__ == "__main__":
-    # chosen_grid = choose_sudoku_game()
-    # chosen_grid_copy = chosen_grid.copy()
-    # initialize_game_window(chosen_grid, chosen_grid_copy)
-    initialize_game_window(grid_test, grid_test_copy)
-    # choose_sudoku_game()
+    chosen_grid = choose_sudoku_game()
+    check_if_solved_copy = copy.deepcopy(chosen_grid[0])
+    solved_grid = sudoku_solver(check_if_solved_copy)
+    print(f"rezolvat: {solved_grid}")
+    print(f"nerezolvat: {chosen_grid[0]}")
+    initialize_game_window(chosen_grid[0], chosen_grid[1], solved_grid)
