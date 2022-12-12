@@ -102,6 +102,11 @@ def insert_user_number(game_window, cell_coordinates, chosen_grid, chosen_grid_c
 
             return
 
+def display_message(image_path, screen):
+    error_image = pygame.image.load(image_path)
+    rect = error_image.get_rect(center=screen.get_rect().center)
+    screen.blit(error_image, rect)
+    pygame.display.update()
 def initialize_game_window(chosen_grid, chosen_grid_copy, test_copy):
     global to_check
     pygame.init()
@@ -138,15 +143,17 @@ def initialize_game_window(chosen_grid, chosen_grid_copy, test_copy):
                                               chosen_grid, chosen_grid_copy) # get index //50
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_c:
-                    if to_check:
+                    if to_check: # if at least one number was inserted
                         if to_check == test_copy:
-                            print("Corect")
+                            display_message('images/youwon.png', game_window)
                         else:
-                            print("Incorect")
+                            display_message('images/gameover.png', game_window)
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    return
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return
-
 
 if __name__ == "__main__":
     chosen_grid = choose_sudoku_game()
