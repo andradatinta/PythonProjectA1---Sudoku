@@ -63,7 +63,6 @@ solved = 0
 def sudoku_solver(grid):
     for i in range(0, len(grid[0])):
         for j in range(0, len(grid[0])):
-            print(f"na index: {grid[i][j]}")
             if is_cell_empty(grid[i][j]):
                 for k in range(1, 10):
                     if is_number_valid((i, j), k, grid):
@@ -99,7 +98,6 @@ def insert_user_number(game_window, cell_coordinates, chosen_grid, chosen_grid_c
                     chosen_grid[x-3][y-3] = event.key - 48
                     pygame.display.update()
                 return chosen_grid
-
             return
 
 def display_message(image_path, screen):
@@ -108,12 +106,15 @@ def display_message(image_path, screen):
     screen.blit(error_image, rect)
     pygame.display.update()
 def initialize_game_window(chosen_grid, chosen_grid_copy, test_copy):
+
     global to_check
     pygame.init()
     game_window = pygame.display.set_mode((width, width))
     game_window.fill(background)
     grid_font = pygame.font.SysFont('comicsansms', 35)
     pygame.display.set_caption("FIISudoku")
+    clock = pygame.time.Clock()
+    start = 210
 
     for line_number in range(0, 10):
         if line_number % 3 == 0:
@@ -134,7 +135,23 @@ def initialize_game_window(chosen_grid, chosen_grid_copy, test_copy):
                 game_window.blit(value, ((j + 1) * 50 + 115, (i + 1) * 50 + 100))
     pygame.display.update()
 
+    # finished = False
     while True:
+
+        total_mins = start//60
+        total_secs = start - (60 * total_mins)
+        start -= 1
+
+        if start < 0:
+            # finished = True
+            display_message('images/gameover.png', game_window)
+        else:
+            text = grid_font.render(("Time left: " + str(total_mins) + ":" + str(total_secs)), True, number_color)
+            pygame.draw.rect(game_window, background, (250, 35, 300, 40))
+            game_window.blit(text, (250, 30))
+            pygame.display.update()
+            clock.tick(1)
+
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 cell_coordinates = pygame.mouse.get_pos()
