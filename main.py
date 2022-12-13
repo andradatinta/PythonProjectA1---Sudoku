@@ -19,15 +19,48 @@ def choose_sudoku_game():
         [0, 4, 9, 2, 0, 6, 0, 0, 7]
     ],
         [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 0, 7, 0, 8, 0],
-            [0, 0, 8, 2, 0, 9, 1, 0, 4],
-            [1, 0, 0, 0, 7, 0, 2, 6, 6],
-            [4, 5, 9, 0, 0, 0, 0, 0, 0],
-            [6, 8, 0, 0, 0, 3, 4, 0, 0],
-            [0, 0, 1, 5, 9, 2, 0, 6, 8],
-            [0, 6, 0, 0, 0, 4, 9, 0, 2],
-            [8, 9, 0, 7, 1, 0, 5, 0, 3]
+            [2, 0, 5, 0, 0, 9, 0, 0, 0],
+            [0, 0, 1, 6, 0, 0, 0, 0, 5],
+            [0, 0, 0, 7, 0, 0, 0, 4, 0],
+            [1, 8, 0, 0, 2, 0, 0, 0, 9],
+            [0, 0, 0, 0, 6, 0, 0, 0, 0],
+            [9, 0, 0, 0, 1, 0, 0, 2, 7],
+            [0, 7, 0, 0, 0, 5, 0, 0, 0],
+            [4, 0, 0, 0, 0, 6, 9, 0, 0],
+            [0, 0, 0, 3, 0, 0, 2, 0, 4]
+        ],
+        [
+            [0, 0, 0, 0, 0, 0, 1, 4, 8],
+            [0, 1, 0, 0, 2, 6, 0, 0, 3],
+            [0, 0, 0, 0, 1, 0, 6, 0, 0],
+            [0, 0, 0, 0, 0, 0, 9, 0, 2],
+            [1, 0, 0, 3, 6, 2, 0, 0, 7],
+            [5, 0, 7, 0, 0, 0, 0, 0, 0],
+            [0, 0, 5, 0, 3, 0, 0, 0, 0],
+            [3, 0, 0, 1, 9, 0, 0, 7, 0],
+            [4, 7, 0, 0, 0, 0, 0, 0, 0]
+        ],
+        [
+            [3, 0, 9, 6, 4, 0, 1, 0, 0],
+            [0, 4, 0, 0, 0, 7, 0, 0, 0],
+            [0, 0, 1, 0, 0, 2, 0, 0, 0],
+            [0, 0, 6, 0, 0, 4, 5, 0, 0],
+            [0, 3, 4, 7, 0, 9, 2, 8, 0],
+            [0, 0, 7, 1, 0, 0, 6, 0, 0],
+            [0, 0, 0, 3, 0, 0, 7, 0, 0],
+            [0, 0, 0, 5, 0, 0, 0, 4, 0],
+            [0, 0, 3, 0, 7, 1, 9, 0, 2]
+        ],
+        [
+            [5, 7, 0, 0, 0, 8, 0, 0, 2],
+            [0, 0, 0, 1, 0, 0, 0, 0, 5],
+            [0, 0, 0, 2, 0, 5, 9, 0, 0],
+            [4, 5, 7, 0, 0, 2, 0, 0, 0],
+            [0, 0, 6, 0, 0, 0, 2, 0, 0],
+            [0, 0, 0, 9, 0, 0, 8, 5, 4],
+            [0, 0, 3, 0, 0, 0, 0, 0, 0],
+            [2, 0, 0, 0, 0, 6, 0, 0, 0],
+            [6, 0, 0, 5, 0, 0, 0, 1, 8],
         ]
     ]
     choice = random.choice(grid)
@@ -114,7 +147,7 @@ def initialize_game_window(chosen_grid, chosen_grid_copy, test_copy):
     grid_font = pygame.font.SysFont('comicsansms', 35)
     pygame.display.set_caption("FIISudoku")
     clock = pygame.time.Clock()
-    start = 210
+    start = 3000
 
     for line_number in range(0, 10):
         if line_number % 3 == 0:
@@ -131,31 +164,29 @@ def initialize_game_window(chosen_grid, chosen_grid_copy, test_copy):
     for i in range(0, len(chosen_grid[0])):
         for j in range(0, len(chosen_grid[0])):
             if 0 < chosen_grid[i][j] < 10:
-                value = grid_font.render(str(chosen_grid[i][j]), True, number_color)
+                value = grid_font.render(str(chosen_grid[i][j]), True, (153, 233, 242))
                 game_window.blit(value, ((j + 1) * 50 + 115, (i + 1) * 50 + 100))
     pygame.display.update()
 
-    # finished = False
     while True:
 
-        total_mins = start//60
-        total_secs = start - (60 * total_mins)
+        total_mins = start//600
+        total_secs = start - (600 * total_mins)
         start -= 1
 
         if start < 0:
-            # finished = True
             display_message('images/gameover.png', game_window)
         else:
-            text = grid_font.render(("Time left: " + str(total_mins) + ":" + str(total_secs)), True, number_color)
+            text = grid_font.render(("Time left: " + str(total_mins) + ":" + str(total_secs)[:2]), True, number_color)
             pygame.draw.rect(game_window, background, (250, 35, 300, 40))
             game_window.blit(text, (250, 30))
             pygame.display.update()
-            clock.tick(1)
+            clock.tick(10)
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 cell_coordinates = pygame.mouse.get_pos()
-                print(cell_coordinates)
+                # print(cell_coordinates)
                 to_check = insert_user_number(game_window, (cell_coordinates[0]//50, cell_coordinates[1]//50),
                                               chosen_grid, chosen_grid_copy) # get index //50
             if event.type == pygame.KEYDOWN:
@@ -176,6 +207,7 @@ if __name__ == "__main__":
     chosen_grid = choose_sudoku_game()
     check_if_solved_copy = copy.deepcopy(chosen_grid[0])
     solved_grid = sudoku_solver(check_if_solved_copy)
-    print(f"rezolvat: {solved_grid}")
-    print(f"nerezolvat: {chosen_grid[0]}")
+    print("SOLUTION FOR THE INITIAL SUDOKU CONFIGURATION:", end='\n')
+    for line in solved_grid:
+        print(line, end='\n')
     initialize_game_window(chosen_grid[0], chosen_grid[1], solved_grid)
